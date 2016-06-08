@@ -1,13 +1,17 @@
 package br.com.fourthapp.entity;
 
 import java.io.Serializable;
+import java.util.Set;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
-import javax.persistence.OneToOne;
 
 /**
  *
@@ -15,21 +19,27 @@ import javax.persistence.OneToOne;
  */
 @Entity
 @NamedQueries({
-    @NamedQuery(name = "Pessoa.findByNome", query = "select p from Pessoa p where p.nome = :nome"),
-    @NamedQuery(name = "Pessoa.findByEmail", query = "select p from Pessoa p where p.email = :nome")
+    @NamedQuery(name = "Grupo.findByNome", query = "select g from Grupo g where g.nome = :nome")
 })
-public class Pessoa implements Serializable {
+public class Grupo implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+    @Column(nullable = false, unique = true)
     private String nome;
-    private String email;
-    @OneToOne
-    private Usuario usuario;
+    @ManyToMany
+    @JoinTable(name = "grupo_usuario", joinColumns = {
+        @JoinColumn(name = "grupo_id")}, inverseJoinColumns = {
+        @JoinColumn(name = "usuario_id")})
+    private Set<Usuario> usuarios;
 
-    public Pessoa() {
+    public Grupo() {
+    }
+
+    public Grupo(String nome) {
+        this.nome = nome;
     }
 
     public Long getId() {
@@ -48,20 +58,12 @@ public class Pessoa implements Serializable {
         this.nome = nome;
     }
 
-    public String getEmail() {
-        return email;
+    public Set<Usuario> getUsuarios() {
+        return usuarios;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public Usuario getUsuario() {
-        return usuario;
-    }
-
-    public void setUsuario(Usuario usuario) {
-        this.usuario = usuario;
+    public void setUsuarios(Set<Usuario> usuarios) {
+        this.usuarios = usuarios;
     }
 
     @Override
@@ -74,10 +76,10 @@ public class Pessoa implements Serializable {
     @Override
     public boolean equals(Object object) {
         // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof Pessoa)) {
+        if (!(object instanceof Grupo)) {
             return false;
         }
-        Pessoa other = (Pessoa) object;
+        Grupo other = (Grupo) object;
         if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
             return false;
         }
@@ -86,7 +88,7 @@ public class Pessoa implements Serializable {
 
     @Override
     public String toString() {
-        return nome + " - " + email;
+        return nome;
     }
 
 }
